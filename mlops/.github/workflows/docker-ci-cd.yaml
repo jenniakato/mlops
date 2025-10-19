@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install --user black pylint pytest
+          pip install black pylint pytest
           if [ -f my_app/requirements.txt ]; then pip install -r my_app/requirements.txt; fi
 
       - name: Format
@@ -41,7 +41,7 @@ jobs:
         run: pylint --disable=R,C my_app/app.py
 
       - name: Test
-        run: python -m pytest -vv my_app/test.py || echo "No test file found, skipping"
+        run: python -m pytest -vv my_app/Test.py || echo "No test file found, skipping"
 
   cd_pipeline:
     runs-on: ubuntu-latest
