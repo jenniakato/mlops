@@ -52,17 +52,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
       - name: Docker login
         run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
-      - name: Get current date
+      - name: Get current date # get the date of the build
         id: date
-        run: echo "date=$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
 
-      - name: Build Docker image
+      - name: Build Docker image # push The image to the docker hub
         run: docker build ./my_app -f ./my_app/Dockerfile -t $DOCKER_USER/$REPO_NAME:${{ env.date }}
 
       - name: Docker push
         run: docker push $DOCKER_USER/$REPO_NAME:${{ env.date }}
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            docker pull $DOCKER_USER/$REPO_NAME:latest
+            docker stop mlapp || true
+            docker rm mlapp || true
+            docker run -d --name mlapp -p 8501:8501 $DOCKER_USER/$REPO_NAME:latest
+          EOF
 
