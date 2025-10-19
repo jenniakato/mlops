@@ -1,0 +1,20 @@
+# === MLflow ===
+mlruns/
+mlartifacts/
+my_app/mlruns/
+**/mlruns/
+**/mlartifacts/
+
+# === Python cache & virtual env ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.egg-info/
+.env
+.venv/
+venv/
+env/
+
+
