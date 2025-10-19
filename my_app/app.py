@@ -54,6 +54,7 @@ if st.button("🔍 Lancer la prédiction"):
         }
 
         try:
+            st.write("📦 Données envoyées au modèle :", user_data)
             prediction = predict(user_data)
             st.success("✅ Prédiction effectuée avec succès.")
             if prediction == 1:
@@ -61,4 +62,4 @@ if st.button("🔍 Lancer la prédiction"):
             else:
                 st.success("🟢 Risque FAIBLE de défaut de paiement.")
         except Exception as e:
-            st.error(f"❌ Erreur lors de la prédiction : {e}")
+            st.error(f"❌ Erreur lors de la prédiction : {type(e).__name__} - {e}")
