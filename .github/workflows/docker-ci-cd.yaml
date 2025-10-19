@@ -44,7 +44,7 @@ jobs:
 
       - name: Test
         run: |
-          python -m pytest -vv my_app/test.py || echo "No test file found, skipping"
+          python -m pytest -vv my_app/Test.py || echo "No test file found, skipping"
 
   cd_pipeline:
     runs-on: ubuntu-latest
