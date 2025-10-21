@@ -65,12 +65,4 @@ jobs:
       - name: Docker push
         run: docker push $DOCKER_USER/$REPO_NAME:${{ env.date }}
 
-      - name: Deploy to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker pull $DOCKER_USER/$REPO_NAME:latest
-            docker stop mlapp || true
-            docker rm mlapp || true
-            docker run -d --name mlapp -p 8501:8501 $DOCKER_USER/$REPO_NAME:latest
-          EOF
 

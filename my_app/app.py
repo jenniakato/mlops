@@ -1,5 +1,6 @@
 import streamlit as st
-from Import_model import predict, DEFAULT_LOAN_RATES
+from Import_model import predict
+from Import_model import DEFAULT_LOAN_RATES
 
 st.set_page_config(page_title="Prédiction Risque de Crédit", page_icon="💸", layout="centered")
 
@@ -40,8 +41,8 @@ if st.button("🔍 Lancer la prédiction"):
         loan_int_rate = DEFAULT_LOAN_RATES.get(loan_intent.upper(), 0.05)
         loan_percent_income = loan_amnt / person_income
 
-        st.markdown(f"💡 **Taux d'intérêt appliqué :** `{loan_int_rate * 100:.2f}%`")
-        st.markdown(f"💰 **Pourcentage du revenu emprunté :** `{loan_percent_income * 100:.2f}%`")
+        st.markdown(f"**Taux d'intérêt appliqué :** `{loan_int_rate * 100:.2f}%`")
+        st.markdown(f"**Pourcentage du revenu emprunté :** `{loan_percent_income * 100:.2f}%`")
 
         # --- Prédiction ---
         user_data = {
@@ -54,9 +55,7 @@ if st.button("🔍 Lancer la prédiction"):
         }
 
         try:
-            st.write("📦 Données envoyées au modèle :", user_data)
             prediction = predict(user_data)
-            st.success("✅ Prédiction effectuée avec succès.")
             if prediction == 1:
                 st.error("⚠️ Risque ÉLEVÉ de défaut de paiement.")
             else:

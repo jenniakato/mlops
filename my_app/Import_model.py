@@ -1,5 +1,8 @@
 import mlflow.sklearn
+import mlflow.pyfunc
+import mlflow.sklearn
 import pandas as pd
+from mlflow.tracking import MlflowClient
 
 # Mapping par défaut des taux en fonction du loan_intent
 DEFAULT_LOAN_RATES = {
@@ -12,42 +15,55 @@ DEFAULT_LOAN_RATES = {
 }
 
 # Chemin local vers le modèle MLflow
-MODEL_PATH = r"C:\Users\j_aka\Desktop\mlops\mlartifacts\606383372813198707\models\m-5c2ddd0195bb43af80c1afa469e96f2b\artifacts"
+#model_path = r"C:\Users\j_aka\Desktop\mlops\mlartifacts\606383372813198707\models\m-8f6d8296881841c78964badb00e5f626"
+model_path = r"file:///C:/Users/j_aka/Desktop/mlops/mlartifacts/606383372813198707/models/m-32d10fd82bd54d67836fc6e309edba1a/artifacts"
+
 
 def load_model():
     """
     Charge le modèle enregistré localement depuis MLflow
     """
-    return mlflow.sklearn.load_model(MODEL_PATH)
+    #return mlflow.sklearn.load_model(model_path)
+    return mlflow.pyfunc.load_model(model_path)
 
 def prepare_input(user_input: dict) -> pd.DataFrame:
-    """
-    Transforme les données utilisateur en DataFrame compatible avec le pipeline
-    """
-    input_df = pd.DataFrame([user_input])
-    
-    # Remplissage du taux par défaut en fonction de loan_intent
-    if "loan_int_rate" not in input_df.columns:
-        input_df["loan_int_rate"] = input_df["loan_intent"].map(DEFAULT_LOAN_RATES)
-    
-    # Calcul de loan_percent_income
-    if "loan_percent_income" not in input_df.columns:
-        input_df["loan_percent_income"] = input_df["loan_amnt"] / input_df["person_income"]
-    
-    # Colonnes manquantes pour l'app
-    input_df["loan_grade"] = None
-    input_df["cb_person_default_on_file"] = None
-    input_df["cb_person_cred_hist_length"] = None
-    
-    return input_df
+    df = pd.DataFrame([user_input])
 
-def predict(user_input: dict):
+    # Colonnes obligatoires cat
+    for col in ["person_home_ownership", "loan_intent", "loan_grade", "cb_person_default_on_file"]:
+        if col not in df.columns or df[col].isna().any():
+            df[col] = "NA"
+
+    # Mapping taux et calculs
+    df["loan_int_rate"] = df.get("loan_int_rate", df["loan_intent"].map(DEFAULT_LOAN_RATES))
+    df["loan_percent_income"] = df["loan_amnt"] / df["person_income"]
+
+    # Conversion numérique selon le schéma
+    for col in ["person_age", "person_income", "loan_amnt", "cb_person_cred_hist_length"]:
+        if col not in df.columns or df[col].isna().any():
+            df[col] = 0
+        df[col] = df[col].astype(int)
+
+    for col in ["person_emp_length", "loan_int_rate", "loan_percent_income"]:
+        if col not in df.columns:
+            df[col] = float("nan")
+        df[col] = df[col].astype(float)
+
+    # Conversion string
+    for col in ["person_home_ownership", "loan_intent", "loan_grade", "cb_person_default_on_file"]:
+        df[col] = df[col].astype(str)
+
+    return df
+
+model = load_model()
+
+def predict(user_inputs: list):
     """
     Prédit la valeur de loan_status pour une entrée utilisateur
     """
-    model = load_model()
-    df_prepared = prepare_input(user_input)
+    df_prepared = prepare_input(user_inputs)
     return model.predict(df_prepared)[0]
+
 
 # Test rapide
 if __name__ == "__main__":
