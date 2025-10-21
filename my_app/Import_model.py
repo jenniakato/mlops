@@ -1,6 +1,8 @@
 import mlflow.sklearn
 import mlflow.pyfunc
 import mlflow.sklearn
+import pickle
+import os
 import pandas as pd
 from mlflow.tracking import MlflowClient
 
@@ -16,15 +18,21 @@ DEFAULT_LOAN_RATES = {
 
 # Chemin local vers le modèle MLflow
 #model_path = r"C:\Users\j_aka\Desktop\mlops\mlartifacts\606383372813198707\models\m-8f6d8296881841c78964badb00e5f626"
-model_path = r"file:///C:/Users/j_aka/Desktop/mlops/mlartifacts/606383372813198707/models/m-32d10fd82bd54d67836fc6e309edba1a/artifacts"
+#Erreur au niveau du path 
+# model_path = r"file:///C:/Users/j_aka/Desktop/mlops/mlartifacts/606383372813198707/models/m-32d10fd82bd54d67836fc6e309edba1a/artifacts"
+# Chargement du modèle
+#model = pickle.load(open("model.pkl", "rb"))
+model_path = os.path.join(os.path.dirname(__file__), "model.pkl")
 
-
-def load_model():
-    """
-    Charge le modèle enregistré localement depuis MLflow
-    """
+# ouvre le modèle de façon sécurisée
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
+#def load_model():
+ #   """
+  #  Charge le modèle enregistré localement depuis MLflow
+   # """
     #return mlflow.sklearn.load_model(model_path)
-    return mlflow.pyfunc.load_model(model_path)
+    #return mlflow.pyfunc.load_model(model_path)
 
 def prepare_input(user_input: dict) -> pd.DataFrame:
     df = pd.DataFrame([user_input])
@@ -55,9 +63,8 @@ def prepare_input(user_input: dict) -> pd.DataFrame:
 
     return df
 
-model = load_model()
-
-def predict(user_inputs: list):
+#model = load_model()
+def predict(user_inputs: dict):
     """
     Prédit la valeur de loan_status pour une entrée utilisateur
     """
