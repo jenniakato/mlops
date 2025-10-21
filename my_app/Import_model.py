@@ -65,7 +65,7 @@ def predict(user_inputs: list):
     return model.predict(df_prepared)[0]
 
 
-# Test rapide
+# Test 
 if __name__ == "__main__":
     user_data = {
         "person_age": 35,

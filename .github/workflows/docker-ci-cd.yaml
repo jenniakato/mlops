@@ -60,9 +60,9 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
 
       - name: Build Docker image # push The image to the docker hub
-        run: docker build ./my_app -f ./my_app/Dockerfile -t $DOCKER_USER/$REPO_NAME:${{ env.date }}
+        run: docker build ./my_app -f ./my_app/Dockerfile -t $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
 
       - name: Docker push
-        run: docker push $DOCKER_USER/$REPO_NAME:${{ env.date }}
+        run: docker push $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
 
 
